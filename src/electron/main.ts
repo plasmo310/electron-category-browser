@@ -48,7 +48,7 @@ ipcMain.handle('loadFile', async (event, filePath) => {
 
   let data = null;
   try {
-    data = fs.readFileSync(filePath);
+    data = fs.readFileSync(filePath, 'utf8');
   } catch (e) {
     console.log(`faild load file => ${filePath}`);
     return null;
