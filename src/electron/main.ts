@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 
 function createWindow() {
@@ -28,4 +28,30 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+// ----- レンダラープロセスから呼び出される処理 -----
+
+/** ファイル保存関連 */
+const fs = require('fs');
+
+/**
+ * ファイル保存処理
+ */
+ipcMain.handle('loadFile', async (event, filePath) => {
+  try {
+    fs.statSync(filePath);
+  } catch (e) {
+    console.log(`not exist file path => ${filePath}`);
+    return null;
+  }
+
+  let data = null;
+  try {
+    data = fs.readFileSync(filePath);
+  } catch (e) {
+    console.log(`faild load file => ${filePath}`);
+    return null;
+  }
+  return data;
 });

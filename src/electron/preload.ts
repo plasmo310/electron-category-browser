@@ -1,12 +1,8 @@
-window.addEventListener('DOMContentLoaded', () => {
-  const replaceText = (selector: any, text: any) => {
-    const element = document.getElementById(selector);
-    if (element) {
-      element.innerText = text;
-    }
-  };
+const { ipcRenderer, contextBridge } = require('electron');
 
-  for (const type of ['chrome', 'node', 'electron']) {
-    replaceText(`${type}-version`, process.versions[type as keyof NodeJS.ProcessVersions]);
-  }
+// レンダラープロセス -> メインプロセス 処理を呼び出すためのブリッジ
+// コンテキストを分離してwindowオブジェクトに設定する
+// https://www.electronjs.org/ja/docs/latest/tutorial/context-isolation
+contextBridge.exposeInMainWorld('electronAPI', {
+  loadFile: (filePath: string) => ipcRenderer.invoke('loadFile', filePath),
 });
