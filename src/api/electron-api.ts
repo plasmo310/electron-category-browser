@@ -39,7 +39,20 @@ export const useElectronApi = () => {
    */
   const loadFile = (filePath: string, callback: (result: string) => void) => {
     if (!window.electronAPI) {
-      callback(null);
+      // Webでの確認用データ
+      const dummy = `id,taxonomy,name,slug,parent
+3,category,音楽,music,0
+5,category,その他,other,0
+6,category,都会のエレキベア,elekibear,0
+37,category,ラーメン日記,ramen,0
+39,category,四コマ漫画,comic,0
+40,category,好きな曲カタルコーナー,favorite,3
+53,category,IT関連,it,0
+64,category,WordPress関連,wordpress,53
+65,category,Python,python,53
+66,category,JavaScript,java-script,53
+`
+      callback(dummy);
       return;
     }
     window.electronAPI.loadFile(filePath).then(callback);
@@ -59,7 +72,7 @@ export const useElectronApi = () => {
 
       // CSVからデータを取得
       const data: string[][] = [];
-      const rows: string[] = readConrtent.split('\n');
+      const rows: string[] = readConrtent.replace('\r', '').split('\n');
       for (let i = 1; i < rows.length; i++) {
         if (rows[i].indexOf(',') < 0) {
           continue;
