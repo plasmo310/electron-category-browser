@@ -15,14 +15,14 @@ declare global {
  * マスタデータ型定義
  */
 export namespace mstData {
-    // カテゴリーデータ
-    export type mstTermsRow = {
-      id: string;
-      taxonomy: string; // category or post_tag
-      name: string;
-      slug: string;
-      parent: string;
-    };
+  // カテゴリーデータ
+  export type mstTermsRow = {
+    id: string;
+    taxonomy: string; // category or post_tag
+    name: string;
+    slug: string;
+    parent: string;
+  };
 }
 
 /**
@@ -33,9 +33,9 @@ export namespace mstData {
 export const useElectronApi = () => {
   /**
    * ファイル読込
-   * @param filePath 
-   * @param callback 
-   * @returns 
+   * @param filePath
+   * @param callback
+   * @returns
    */
   const loadFile = (filePath: string, callback: (result: string) => void) => {
     if (!window.electronAPI) {
@@ -51,7 +51,7 @@ export const useElectronApi = () => {
 64,category,WordPress関連,wordpress,53
 65,category,Python,python,53
 66,category,JavaScript,java-script,53
-`
+`;
       callback(dummy);
       return;
     }
@@ -60,19 +60,19 @@ export const useElectronApi = () => {
 
   /**
    * カテゴリーデータファイルの読込
-   * @param filePath 
-   * @param callback 
+   * @param filePath
+   * @param callback
    */
   const loadMstTermsFile = (filePath: string, callback: (result: mstData.mstTermsRow[]) => void) => {
-    loadFile(filePath, (readConrtent) => {
-      if (!readConrtent || readConrtent.indexOf(',') <= 0) {
-        callback(null)
-        return
+    loadFile(filePath, (readContent: string) => {
+      if (!readContent || readContent.indexOf(',') <= 0) {
+        callback(null);
+        return;
       }
 
       // CSVからデータを取得
       const data: string[][] = [];
-      const rows: string[] = readConrtent.replace('\r', '').split('\n');
+      const rows: string[] = readContent.replace(/\r/g, '').split('\n');
       for (let i = 1; i < rows.length; i++) {
         if (rows[i].indexOf(',') < 0) {
           continue;
@@ -80,7 +80,7 @@ export const useElectronApi = () => {
         const values = rows[i].split(',');
         data.push(values);
       }
-      
+
       // データをマスタデータの形式に変換
       const result: mstData.mstTermsRow[] = [];
       for (let i = 0; i < data.length; i++) {
@@ -95,9 +95,9 @@ export const useElectronApi = () => {
         };
         result.push(row);
       }
-      callback(result)
-    })
-  }
+      callback(result);
+    });
+  };
 
   return {
     loadFile,
