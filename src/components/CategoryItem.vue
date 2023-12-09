@@ -7,33 +7,60 @@ export default defineComponent({
   props: {
     categoryData: null,
     isParent: Boolean,
+    isSelected: Boolean,
   },
-  setup(props: { categoryData: mstData.mstTermsRow; isParent: boolean }) {
+  emits: ['onChangeSelectId'],
+  setup(props: { categoryData: mstData.mstTermsRow; isParent: boolean; isSelected: boolean }, { emit }) {
     const categoryData = props.categoryData;
     const isParent = props.isParent;
+
+    /**
+     * カテゴリの選択状態を変更する
+     * @param categoryId
+     * @param isSelected
+     */
+    function onChangeSelectStateCategory(e: any) {
+      const categoryId = categoryData.id;
+      const isSelected = e.target.checked;
+      emit('onChangeSelectId', categoryId, isSelected);
+    }
 
     return {
       categoryData,
       isParent,
+      onChangeSelectStateCategory,
     };
   },
 });
 </script>
 
 <template>
-  <li class="category-item" :class="isParent ? 'category-item-parent' : 'category-item-child'">
-    {{ categoryData.name }}
+  <li class="category-item-root">
+    <input class="category-item-checkbox" type="checkbox" v-on:change="onChangeSelectStateCategory" />
+    <span class="category-item" :class="isParent ? 'category-item-parent' : 'category-item-child'">
+      {{ categoryData.name }}
+    </span>
   </li>
 </template>
 
 <style scoped>
+.category-item-root {
+  display: flex;
+  justify-content: left;
+  vertical-align: middle;
+  list-style: none;
+  height: 32px;
+  margin-left: 20px;
+}
+.category-item-checkbox {
+  height: 20px;
+  width: 20px;
+}
 .category-item {
   text-align: left;
-  list-style: none;
-  height: 28px;
 }
 .category-item-parent {
-  margin-left: 20px;
+  margin-left: 12px;
 }
 .category-item-child {
   margin-left: 40px;

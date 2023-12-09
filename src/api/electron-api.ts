@@ -4,6 +4,7 @@
  */
 export interface IElectronAPI {
   loadFile: (filePath: string) => Promise<string>;
+  writeTextToClipboard: (writeText: string) => Promise<void>;
 }
 declare global {
   interface Window {
@@ -39,6 +40,7 @@ export const useElectronApi = () => {
    */
   const loadFile = (filePath: string, callback: (result: string) => void) => {
     if (!window.electronAPI) {
+      console.log('current platform is not support electron api.');
       // Webでの確認用データ
       const dummy = `id,taxonomy,name,slug,parent
 3,category,音楽,music,0
@@ -99,8 +101,22 @@ export const useElectronApi = () => {
     });
   };
 
+  /**
+   * クリップボードへの書き込み
+   * @param writeText
+   * @returns
+   */
+  const writeTextToClipboard = (writeText: string) => {
+    if (!window.electronAPI) {
+      console.log('current platform is not support electron api.');
+      return;
+    }
+    window.electronAPI.writeTextToClipboard(writeText);
+  };
+
   return {
     loadFile,
     loadMstTermsFile,
+    writeTextToClipboard,
   };
 };

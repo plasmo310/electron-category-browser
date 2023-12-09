@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, clipboard, ipcMain } from 'electron';
 import * as path from 'path';
 
 function createWindow() {
@@ -54,4 +54,13 @@ ipcMain.handle('loadFile', async (event, filePath) => {
     return null;
   }
   return data;
+});
+
+/** クリップボード関連 */
+
+/**
+ * クリップボードへ任意の文字列をコピー
+ */
+ipcMain.handle('writeTextToClipboard', async (event, weiteText: string) => {
+  clipboard.writeText(weiteText);
 });
