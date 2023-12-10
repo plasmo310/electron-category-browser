@@ -38,9 +38,8 @@ export const useElectronApi = () => {
    * @param callback
    * @returns
    */
-  const loadFile = (filePath: string, callback: (result: string) => void) => {
+  const loadFile = (filePath: string, callback: (result: string, errorMessage: string) => void) => {
     if (!window.electronAPI) {
-      console.log('current platform is not support electron api.');
       // Webでの確認用データ
       const dummy = `id,taxonomy,name,slug,parent
 3,category,音楽,music,0
@@ -54,10 +53,10 @@ export const useElectronApi = () => {
 65,category,Python,python,53
 66,category,JavaScript,java-script,53
 `;
-      callback(dummy);
+      callback(dummy, 'current platform is not support electron api.');
       return;
     }
-    window.electronAPI.loadFile(filePath).then(callback);
+    window.electronAPI.loadFile(filePath).then((data) => callback(data, null));
   };
 
   /**
@@ -65,10 +64,13 @@ export const useElectronApi = () => {
    * @param filePath
    * @param callback
    */
-  const loadMstTermsFile = (filePath: string, callback: (result: mstData.mstTermsRow[]) => void) => {
-    loadFile(filePath, (readContent: string) => {
+  const loadMstTermsFile = (
+    filePath: string,
+    callback: (result: mstData.mstTermsRow[], errorMessage: string) => void,
+  ) => {
+    loadFile(filePath, (readContent: string, errorMessage: string) => {
       if (!readContent || readContent.indexOf(',') <= 0) {
-        callback(null);
+        callback(null, errorMessage);
         return;
       }
 
@@ -97,7 +99,7 @@ export const useElectronApi = () => {
         };
         result.push(row);
       }
-      callback(result);
+      callback(result, null);
     });
   };
 
@@ -106,12 +108,13 @@ export const useElectronApi = () => {
    * @param writeText
    * @returns
    */
-  const writeTextToClipboard = (writeText: string) => {
+  const writeTextToClipboard = (writeText: string, callback: (errorMessage: string) => void) => {
     if (!window.electronAPI) {
-      console.log('current platform is not support electron api.');
+      callback('current platform is not support electron api.');
       return;
     }
     window.electronAPI.writeTextToClipboard(writeText);
+    callback('クリップボードにコピーしました。');
   };
 
   return {

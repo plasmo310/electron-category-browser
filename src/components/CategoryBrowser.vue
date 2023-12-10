@@ -1,7 +1,11 @@
 <script lang="ts">
-import { Ref, computed, defineComponent, reactive, ref } from 'vue';
+import { Ref, defineComponent, reactive, ref } from 'vue';
 import { mstData, useElectronApi } from '../api/electron-api';
 import CategoryItem from './CategoryItem.vue';
+
+type CategoryData = {
+  rows: mstData.mstTermsRow[];
+};
 
 export default defineComponent({
   name: 'CategoryBrowser',
@@ -17,10 +21,6 @@ export default defineComponent({
     const inputCsvPath: Ref<string> = ref(
       '/Users/plasma/workspace/GitProjects/wp-next-elekibear/data/db/mst_terms.csv',
     );
-
-    type CategoryData = {
-      rows: mstData.mstTermsRow[];
-    };
 
     /**
      * カテゴリデータ
@@ -44,13 +44,25 @@ export default defineComponent({
     const selectCategoryIdArray: Ref<string[]> = ref([]);
 
     /**
+     * メッセージ
+     */
+    const message = ref('');
+
+    /**
      * 読込ボタン押下
      */
     function OnPushLoadButton() {
-      electronApi.loadMstTermsFile(inputCsvPath.value, (data: mstData.mstTermsRow[]) => {
-        if (!data) {
+      message.value = '';
+      electronApi.loadMstTermsFile(inputCsvPath.value, (data: mstData.mstTermsRow[], errorMessage: string) => {
+        if (errorMessage) {
+          message.value = errorMessage;
           return;
         }
+        if (!data) {
+          message.value = 'データの読込に失敗しました。';
+          return;
+        }
+        console.log(data);
         categoryData.rows = data;
         OnResetSelectStateCategoryIds();
       });
@@ -91,7 +103,12 @@ export default defineComponent({
      * カテゴリ選択状態のクリップボードコピー
      */
     function OnCopySelectStateCategoryIds() {
-      electronApi.writeTextToClipboard(selectCategoryIdArray.value.join(', '));
+      message.value = null;
+      electronApi.writeTextToClipboard(selectCategoryIdArray.value.join(', '), (errorMessage) => {
+        if (errorMessage) {
+          message.value = errorMessage;
+        }
+      });
     }
 
     /**
@@ -107,8 +124,9 @@ export default defineComponent({
     return {
       inputCsvPath,
       categoryData,
-      selectCategoryIdArray,
       updateCategoryItemKey,
+      selectCategoryIdArray,
+      message,
       OnPushLoadButton,
       GetParentCategories,
       GetChildCategories,
@@ -119,7 +137,7 @@ export default defineComponent({
   },
 });
 </script>
-
+0
 <template>
   <div class="container">
     <div class="container-item load-path-area">
@@ -153,6 +171,7 @@ export default defineComponent({
     <button class="category-select-id-button" v-on:click="OnCopySelectStateCategoryIds">コピー</button>
     <button class="category-select-id-button" v-on:click="OnResetSelectStateCategoryIds">リセット</button>
   </div>
+  <div class="container-item message-area">{{ message }}</div>
 </template>
 
 <style scoped>
@@ -242,5 +261,10 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   box-shadow: 2px 2px 6px #555555;
+}
+
+/** メッセージ */
+.message-area {
+  height: 20px;
 }
 </style>
