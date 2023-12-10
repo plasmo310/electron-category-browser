@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Ref, defineComponent, reactive, ref } from 'vue';
+import { Ref, computed, defineComponent, reactive, ref } from 'vue';
 import { mstData, useElectronApi } from '../api/electron-api';
 import CategoryItem from './CategoryItem.vue';
 
@@ -36,6 +36,11 @@ export default defineComponent({
     const categoryData: CategoryData = reactive({
       rows: [],
     });
+    function filteredCategoryData(parentId: string) {
+      // TODO 検索フィルタできるようにする
+      // カテゴリデータをフィルタして返却する
+      return categoryData.rows.filter((row) => row.taxonomy === selectCategoryTabType.value && row.parent === parentId);
+    }
 
     /**
      * カテゴリデータ強制更新用のキー
@@ -64,41 +69,20 @@ export default defineComponent({
     function OnPushLoadButton() {
       // 現在のデータをクリア
       categoryData.rows.splice(0);
-      OnResetSelectStateCategoryIds();
+      OnResetSelectStateCategoryInfo();
       // CSVファイルからデータ読込
-      electronApi.loadMstTermsFile(
-        inputCsvPath.value,
-        selectCategoryTabType.value,
-        (data: mstData.mstTermsRow[], errorMessage: string) => {
-          if (errorMessage) {
-            message.value = errorMessage;
-            return;
-          }
-          if (!data || data.length <= 0) {
-            message.value = 'データの読込に失敗しました。';
-            return;
-          }
-          console.log(data);
-          categoryData.rows = data;
-        },
-      );
-    }
-
-    /**
-     * 親カテゴリのデータを取得する
-     * @param rows
-     */
-    function GetParentCategories(rows: mstData.mstTermsRow[]) {
-      return rows.filter((row) => row.parent === '0');
-    }
-
-    /**
-     * 子カテゴリのデータを取得する
-     * @param rows
-     * @param parentCategoryId
-     */
-    function GetChildCategories(rows: mstData.mstTermsRow[], parentCategoryId: string) {
-      return rows.filter((row) => row.parent === parentCategoryId);
+      electronApi.loadMstTermsFile(inputCsvPath.value, (data: mstData.mstTermsRow[], errorMessage: string) => {
+        if (errorMessage) {
+          message.value = errorMessage;
+          return;
+        }
+        if (!data || data.length <= 0) {
+          message.value = 'データの読込に失敗しました。';
+          return;
+        }
+        console.log(data);
+        categoryData.rows = data;
+      });
     }
 
     /**
@@ -115,7 +99,7 @@ export default defineComponent({
       }
       // カテゴリの種類を変更してデータを再読込
       selectCategoryTabType.value = type;
-      OnPushLoadButton();
+      OnResetSelectStateCategoryInfo();
     }
 
     /**
@@ -147,7 +131,7 @@ export default defineComponent({
     /**
      * カテゴリ選択状態のリセット
      */
-    function OnResetSelectStateCategoryIds() {
+    function OnResetSelectStateCategoryInfo() {
       message.value = null;
       // 選択情報クリア(関数呼び出しじゃないと反映されない)
       selectCategoryIdArray.value.splice(0);
@@ -157,19 +141,17 @@ export default defineComponent({
 
     return {
       inputCsvPath,
-      categoryData,
+      filteredCategoryData,
       updateCategoryItemKey,
       selectCategoryIdArray,
       selectCategoryTabType,
       message,
       CategoryType,
       OnPushLoadButton,
-      GetParentCategories,
-      GetChildCategories,
       OnChangeCategoryTypeTab,
       OnChangeSelectStateCategory,
       OnCopySelectStateCategoryIds,
-      OnResetSelectStateCategoryIds,
+      OnResetSelectStateCategoryInfo,
     };
   },
 });
@@ -195,14 +177,14 @@ export default defineComponent({
         </div>
       </div>
       <div class="category-list-wrapper">
-        <div :key="updateCategoryItemKey" v-for="parentData in GetParentCategories(categoryData.rows)">
+        <div :key="updateCategoryItemKey" v-for="parentData in filteredCategoryData('0')">
           <CategoryItem
             :categoryData="parentData"
             :isParent="true"
             :isSelected="selectCategoryIdArray.includes(parentData.id)"
             @onChangeSelectId="OnChangeSelectStateCategory"
           />
-          <div :key="updateCategoryItemKey" v-for="childData in GetChildCategories(categoryData.rows, parentData.id)">
+          <div :key="updateCategoryItemKey" v-for="childData in filteredCategoryData(parentData.id)">
             <CategoryItem
               :categoryData="childData"
               :isParent="false"
@@ -218,7 +200,7 @@ export default defineComponent({
     <span class="category-select-id-label">選択ID：</span>
     <span class="category-select-id-value">{{ selectCategoryIdArray.join(', ') }}</span>
     <button class="category-select-id-button" v-on:click="OnCopySelectStateCategoryIds">コピー</button>
-    <button class="category-select-id-button" v-on:click="OnResetSelectStateCategoryIds">リセット</button>
+    <button class="category-select-id-button" v-on:click="OnResetSelectStateCategoryInfo">リセット</button>
   </div>
   <div class="container-item message-area">{{ message }}</div>
 </template>

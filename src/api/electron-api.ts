@@ -26,6 +26,24 @@ export namespace mstData {
   };
 }
 
+// Webブラウザ上での確認用データ
+const DUMMY_CATEGORY_DATA = `id,taxonomy,name,slug,parent
+3,category,音楽,music,0
+5,category,その他,other,0
+6,category,都会のエレキベア,elekibear,0
+37,category,ラーメン日記,ramen,0
+39,category,四コマ漫画,comic,0
+40,category,好きな曲カタルコーナー,favorite,3
+53,category,IT関連,it,0
+64,category,WordPress関連,wordpress,53
+65,category,Python,python,53
+66,category,JavaScript,java-script,53
+99,post_tag,Anima2D,anima2d,0
+100,post_tag,NCMB,ncmb,0
+101,post_tag,Simple Physics Toolkit,simple-physics-toolkit,0
+102,post_tag,Unity 2D Animation,unity-2d-animation,0
+`;
+
 /**
  * Electron API
  * Composition Function
@@ -40,19 +58,7 @@ export const useElectronApi = () => {
    */
   const loadFile = (filePath: string, callback: (result: string, errorMessage: string) => void) => {
     if (!window.electronAPI) {
-      // Webでの確認用データ
-      const dummy = `id,taxonomy,name,slug,parent
-3,category,音楽,music,0
-5,category,その他,other,0
-6,category,都会のエレキベア,elekibear,0
-37,category,ラーメン日記,ramen,0
-39,category,四コマ漫画,comic,0
-40,category,好きな曲カタルコーナー,favorite,3
-53,category,IT関連,it,0
-64,category,WordPress関連,wordpress,53
-65,category,Python,python,53
-66,category,JavaScript,java-script,53
-`;
+      const dummy = DUMMY_CATEGORY_DATA;
       callback(dummy, 'current platform is not support electron api.');
       return;
     }
@@ -66,7 +72,6 @@ export const useElectronApi = () => {
    */
   const loadMstTermsFile = (
     filePath: string,
-    categoryType: string,
     callback: (result: mstData.mstTermsRow[], errorMessage: string) => void,
   ) => {
     loadFile(filePath, (readContent: string, errorMessage: string) => {
@@ -98,10 +103,6 @@ export const useElectronApi = () => {
           slug: columns[index++],
           parent: columns[index++],
         };
-        // 指定タイプにフィルタ
-        if (row.taxonomy !== categoryType) {
-          continue;
-        }
         result.push(row);
       }
       callback(result, null);
