@@ -64,6 +64,9 @@ export default defineComponent({
       }
       return filterData;
     }
+    function getCategoryDataFromId(id: string) {
+      return categoryData.rows.find((data) => data.id === id);
+    }
 
     /**
      * カテゴリデータ強制更新用のキー
@@ -154,7 +157,7 @@ export default defineComponent({
     }
 
     /**
-     * カテゴリ選択状態のクリップボードコピー
+     * 選択中のカテゴリIDをクリップボードにコピーする
      */
     function OnCopySelectStateCategoryIds() {
       message.value = null;
@@ -180,6 +183,7 @@ export default defineComponent({
       inputCsvPath,
       categoryData,
       filteredCategoryData,
+      getCategoryDataFromId,
       updateCategoryItemKey,
       selectCategoryIdArray,
       selectCategoryTabType,
@@ -246,9 +250,11 @@ export default defineComponent({
     </div>
   </div>
   <div class="container-item category-select-id-area">
-    <span class="category-select-id-label">選択ID：</span>
-    <span class="category-select-id-value">{{ selectCategoryIdArray.join(', ') }}</span>
-    <button class="category-select-id-button" v-on:click="OnCopySelectStateCategoryIds">コピー</button>
+    <span class="category-select-id-label">選択：</span>
+    <span class="category-select-id-value">{{
+      selectCategoryIdArray.map((id) => getCategoryDataFromId(id).name).join(', ')
+    }}</span>
+    <button class="category-select-id-button" v-on:click="OnCopySelectStateCategoryIds">IDコピー</button>
     <button class="category-select-id-button" v-on:click="OnResetSelectStateCategoryInfo">リセット</button>
   </div>
   <div class="container-item message-area">{{ message }}</div>
@@ -259,10 +265,11 @@ export default defineComponent({
   text-align: center;
   display: flex;
   flex-flow: column;
-  min-width: 600px;
+  width: 600px;
 }
 .container-item {
   margin-bottom: 24px;
+  width: 600px;
 }
 
 /** 読込パスエリア */
@@ -371,11 +378,12 @@ export default defineComponent({
   height: 32px;
 }
 .category-select-id-label {
-  width: 80px;
+  width: 60px;
 }
 .category-select-id-value {
   flex: 1;
   height: 120%;
+  overflow: auto;
   text-align: left;
   display: flex;
   align-items: center;
