@@ -9,7 +9,7 @@ export default defineComponent({
     isParent: Boolean,
     isSelected: Boolean,
   },
-  emits: ['onChangeSelectId'],
+  emits: ['onChangeSelectId', 'onRemoveCategoryItem'],
   setup(props: { categoryData: mstData.mstTermsRow; isParent: boolean; isSelected: boolean }, { emit }) {
     const categoryData = props.categoryData;
     const isParent = props.isParent;
@@ -26,11 +26,17 @@ export default defineComponent({
       emit('onChangeSelectId', categoryId, isSelected);
     }
 
+    function onRemoveCategoryItem(e: any) {
+      const categoryId = categoryData.id;
+      emit('onRemoveCategoryItem', categoryId);
+    }
+
     return {
       categoryData,
       isParent,
       isSelected,
       onChangeSelectStateCategory,
+      onRemoveCategoryItem,
     };
   },
 });
@@ -47,13 +53,14 @@ export default defineComponent({
     <span class="category-item" :class="isParent ? 'category-item-parent' : 'category-item-child'">
       {{ categoryData.name }}
     </span>
+    <button class="category-delete-btn" v-on:click="onRemoveCategoryItem">×</button>
   </li>
 </template>
 
 <style scoped>
 .category-item-root {
   display: flex;
-  justify-content: left;
+  justify-content: space-between;
   vertical-align: middle;
   list-style: none;
   height: 32px;
@@ -65,11 +72,24 @@ export default defineComponent({
 }
 .category-item {
   text-align: left;
+  flex: 1;
 }
 .category-item-parent {
   margin-left: 12px;
 }
 .category-item-child {
   margin-left: 40px;
+}
+.category-delete-btn {
+  width: 60px;
+  height: 20px;
+  line-height: 22px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px;
+  background: none;
+  border: none;
 }
 </style>
