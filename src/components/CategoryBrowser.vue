@@ -108,6 +108,7 @@ export default defineComponent({
       // 現在のデータをクリア
       categoryData.rows.splice(0);
       OnResetSelectStateCategoryInfo();
+      OnResetAddCategoryInfo();
       // CSVファイルからデータ読込
       electronApi.loadMstTermsFile(inputCsvPath.value, (data: mstData.mstTermsRow[], errorMessage: string) => {
         if (errorMessage) {
@@ -155,6 +156,7 @@ export default defineComponent({
       // カテゴリの種類を変更してデータを再読込
       selectCategoryTabType.value = type;
       OnResetSelectStateCategoryInfo();
+      OnResetAddCategoryInfo();
     }
 
     /**
@@ -246,6 +248,15 @@ export default defineComponent({
     }
 
     /**
+     * カテゴリ追加情報のリセット
+     */
+    function OnResetAddCategoryInfo() {
+      addCategoryName.value = null;
+      addCetegorySlug.value = null;
+      addCategoryParent.value = CATEGORY_PARENT_ID;
+    }
+
+    /**
      * カテゴリ削除
      * @param id
      */
@@ -295,6 +306,22 @@ export default defineComponent({
       <input class="load-input-path" v-model="inputCsvPath" />
       <button class="load-input-button" v-on:click="OnPushLoadButton">読込</button>
       <button class="load-input-button" v-on:click="OnPushSaveButton">保存</button>
+    </div>
+    <div class="container-item add-category-area">
+      <input class="add-category-value-name" type="text" placeholder="名前" v-model="addCategoryName" />
+      <input class="add-category-value-slug" type="text" placeholder="スラッグ" v-model="addCetegorySlug" />
+      <select
+        class="add-category-value-parent"
+        v-model="addCategoryParent"
+        placeholder="親カテゴリ"
+        :disabled="selectCategoryTabType === CategoryType.TAG"
+      >
+        <option v-bind:value="'0'" v-bind:key="'0'">親カテゴリ無し</option>
+        <option v-for="parentData in filteredCategoryData()" v-bind:value="parentData.id" v-bind:key="parentData.id">
+          {{ `${parentData.name}` }}
+        </option>
+      </select>
+      <button class="add-category-btn" v-on:click="OnAddCategoryItem">追加</button>
     </div>
     <div class="container-item category-list-area">
       <div class="category-list-tab">
@@ -346,17 +373,6 @@ export default defineComponent({
     }}</span>
     <button class="category-select-id-button" v-on:click="OnCopySelectStateCategoryIds">IDコピー</button>
     <button class="category-select-id-button" v-on:click="OnResetSelectStateCategoryInfo">リセット</button>
-  </div>
-  <div>
-    <input type="text" placeholder="名前" v-model="addCategoryName" />
-    <input type="text" placeholder="スラッグ" v-model="addCetegorySlug" />
-    <select v-model="addCategoryParent" placeholder="親カテゴリ">
-      <option v-bind:value="'0'" v-bind:key="'0'">親カテゴリ無し</option>
-      <option v-for="parentData in filteredCategoryData()" v-bind:value="parentData.id" v-bind:key="parentData.id">
-        {{ `${parentData.name}` }}
-      </option>
-    </select>
-    <button v-on:click="OnAddCategoryItem">追加</button>
   </div>
   <div class="container-item message-area">{{ message }}</div>
 </template>
@@ -503,6 +519,39 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: 2px 2px 6px #555555;
+}
+
+/** カテゴリ追加 */
+.add-category-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 32px;
+}
+.add-category-value-name {
+  flex: 1;
+  height: 100%;
+}
+.add-category-value-slug {
+  flex: 1;
+  height: 100%;
+  margin-left: 8px;
+}
+.add-category-value-parent {
+  width: 160px;
+  height: 112%;
+  margin-left: 8px;
+}
+.add-category-btn {
+  width: 60px;
+  height: 120%;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 8px;
   box-shadow: 2px 2px 6px #555555;
 }
 
