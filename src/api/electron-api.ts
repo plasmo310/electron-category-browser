@@ -4,6 +4,7 @@
  */
 export interface IElectronAPI {
   loadFile: (filePath: string) => Promise<string>;
+  saveFile: (filePath: string, data: string) => Promise<boolean>;
   writeTextToClipboard: (writeText: string) => Promise<void>;
 }
 declare global {
@@ -66,6 +67,28 @@ export const useElectronApi = () => {
   };
 
   /**
+   * ファイル保存
+   * @param filePath
+   * @param data
+   * @param callback
+   * @returns
+   */
+  const saveFile = (filePath: string, data: string, callback: (errorMessage: string) => void) => {
+    if (!window.electronAPI) {
+      const dummy = DUMMY_CATEGORY_DATA;
+      callback('current platform is not support electron api.');
+      return;
+    }
+    window.electronAPI.saveFile(filePath, data).then((result) => {
+      if (!result) {
+        callback('データの保存に失敗しました。');
+        return;
+      }
+    });
+    callback(null);
+  };
+
+  /**
    * カテゴリーデータファイルの読込
    * @param filePath
    * @param callback
@@ -110,6 +133,25 @@ export const useElectronApi = () => {
   };
 
   /**
+   * カテゴリデータファイルの保存
+   * @param filePath
+   * @param rows
+   * @param callback
+   */
+  const saveMstTermsFile = (
+    filePath: string,
+    rows: mstData.mstTermsRow[],
+    callback: (errorMessage: string) => void,
+  ) => {
+    let data = 'id,taxonomy,name,slug,parent\r\n';
+    for (const row of rows) {
+      const values = [row.id, row.taxonomy, row.name, row.slug, row.parent];
+      data += values.join(',') + '\r\n';
+    }
+    saveFile(filePath, data, callback);
+  };
+
+  /**
    * クリップボードへの書き込み
    * @param writeText
    * @returns
@@ -126,6 +168,8 @@ export const useElectronApi = () => {
   return {
     loadFile,
     loadMstTermsFile,
+    saveFile,
+    saveMstTermsFile,
     writeTextToClipboard,
   };
 };

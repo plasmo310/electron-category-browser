@@ -90,6 +90,13 @@ export default defineComponent({
     const searchCategoryWord: Ref<string> = ref('');
 
     /**
+     * 追加カテゴリ 入力情報
+     */
+    const addCategoryName: Ref<string> = ref('');
+    const addCetegorySlug: Ref<string> = ref('');
+    const addCategoryParent: Ref<string> = ref(CATEGORY_PARENT_ID);
+
+    /**
      * メッセージ
      */
     const message = ref('');
@@ -117,6 +124,23 @@ export default defineComponent({
     }
 
     /**
+     * 保存ボタン押下
+     */
+    function OnPushSaveButton() {
+      if (!inputCsvPath.value || !categoryData?.rows || categoryData.rows.length <= 0) {
+        message.value = 'カテゴリ情報が読み込まれていません。';
+        return;
+      }
+      electronApi.saveMstTermsFile(inputCsvPath.value, categoryData.rows, (errorMessage) => {
+        if (errorMessage) {
+          message.value = errorMessage;
+          return;
+        }
+        message.value = 'カテゴリ情報を保存しました。';
+      });
+    }
+
+    /**
      * カテゴリタブの変更
      * @param type
      */
@@ -139,7 +163,7 @@ export default defineComponent({
     function OnChangeSearchCategoryWord(e: any) {
       // keyを更新してカテゴリ一覧を無理やり更新する
       searchCategoryWord.value = e.target.value;
-      updateCategoryItemKey.value = updateCategoryItemKey.value ? 0 : 1;
+      RefreshForceCategoryItem();
     }
 
     /**
@@ -173,8 +197,66 @@ export default defineComponent({
      */
     function OnResetSelectStateCategoryInfo() {
       message.value = null;
+      searchCategoryWord.value = null;
       // 選択情報クリア(関数呼び出しじゃないと反映されない)
       selectCategoryIdArray.value.splice(0);
+      RefreshForceCategoryItem();
+    }
+
+    /**
+     * カテゴリ追加
+     */
+    function OnAddCategoryItem() {
+      if (!categoryData?.rows || categoryData.rows.length <= 0) {
+        message.value = 'データが読み込まれていません。';
+        return;
+      }
+      const categoryName: string = addCategoryName.value;
+      const categorySlug: string = addCetegorySlug.value;
+      const categoryParent: string = addCategoryParent.value;
+      if (!categoryName || !addCetegorySlug || categoryParent == null || categoryParent.length <= 0) {
+        message.value = '必要な情報が入力されていません。';
+        return;
+      }
+
+      // 新しいIDの取得
+      let maxId = -1;
+      for (const data of categoryData.rows) {
+        maxId = Math.max(maxId, Number(data.id));
+
+        if (data.name === categoryName || data.slug === categorySlug) {
+          message.value = '入力されたカテゴリは既に存在しています。';
+          return;
+        }
+      }
+      const newId = maxId + 1;
+
+      // カテゴリをデータに追加
+      categoryData.rows.push({
+        id: String(newId),
+        name: categoryName,
+        taxonomy: selectCategoryTabType.value,
+        slug: categorySlug,
+        parent: categoryParent,
+      });
+      message.value = `カテゴリを追加しました。{ id: ${newId} }`;
+      console.log(`add => ${newId} ${categoryName} ${categorySlug} ${categoryParent}`);
+
+      RefreshForceCategoryItem();
+    }
+
+    /**
+     * カテゴリ削除
+     * @param id
+     */
+    function OnRemoveCategoryItem(id: string) {
+      // TODO
+    }
+
+    /**
+     * カテゴリアイテムの表示更新
+     */
+    function RefreshForceCategoryItem() {
       // keyを更新してカテゴリ一覧を無理やり更新する
       updateCategoryItemKey.value = updateCategoryItemKey.value ? 0 : 1;
     }
@@ -188,14 +270,20 @@ export default defineComponent({
       selectCategoryIdArray,
       selectCategoryTabType,
       searchCategoryWord,
+      addCategoryName,
+      addCetegorySlug,
+      addCategoryParent,
       message,
       CategoryType,
       OnPushLoadButton,
+      OnPushSaveButton,
       OnChangeCategoryTypeTab,
       OnChangeSearchCategoryWord,
       OnChangeSelectStateCategory,
       OnCopySelectStateCategoryIds,
       OnResetSelectStateCategoryInfo,
+      OnAddCategoryItem,
+      OnRemoveCategoryItem,
     };
   },
 });
@@ -205,7 +293,8 @@ export default defineComponent({
   <div class="container">
     <div class="container-item load-path-area">
       <input class="load-input-path" v-model="inputCsvPath" />
-      <button class="load-button" v-on:click="OnPushLoadButton">読込</button>
+      <button class="load-input-button" v-on:click="OnPushLoadButton">読込</button>
+      <button class="load-input-button" v-on:click="OnPushSaveButton">保存</button>
     </div>
     <div class="container-item category-list-area">
       <div class="category-list-tab">
@@ -225,6 +314,7 @@ export default defineComponent({
           type="text"
           class="category-list-search-value"
           placeholder="検索"
+          s
           v-on:input="OnChangeSearchCategoryWord"
           v-show="categoryData.rows.length > 0"
         />
@@ -257,6 +347,17 @@ export default defineComponent({
     <button class="category-select-id-button" v-on:click="OnCopySelectStateCategoryIds">IDコピー</button>
     <button class="category-select-id-button" v-on:click="OnResetSelectStateCategoryInfo">リセット</button>
   </div>
+  <div>
+    <input type="text" placeholder="名前" v-model="addCategoryName" />
+    <input type="text" placeholder="スラッグ" v-model="addCetegorySlug" />
+    <select v-model="addCategoryParent" placeholder="親カテゴリ">
+      <option v-bind:value="'0'" v-bind:key="'0'">親カテゴリ無し</option>
+      <option v-for="parentData in filteredCategoryData()" v-bind:value="parentData.id" v-bind:key="parentData.id">
+        {{ `${parentData.name}` }}
+      </option>
+    </select>
+    <button v-on:click="OnAddCategoryItem">追加</button>
+  </div>
   <div class="container-item message-area">{{ message }}</div>
 </template>
 
@@ -283,14 +384,14 @@ export default defineComponent({
   flex: 1;
   height: 100%;
 }
-.load-button {
-  width: 80px;
+.load-input-button {
+  width: 60px;
   height: 120%;
   font-size: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-left: 12px;
+  margin-left: 8px;
   box-shadow: 2px 2px 6px #555555;
 }
 

@@ -56,6 +56,23 @@ ipcMain.handle('loadFile', async (event, filePath) => {
   return data;
 });
 
+ipcMain.handle('saveFile', async (event, filePath, data) => {
+  try {
+    fs.statSync(filePath);
+  } catch (e) {
+    console.log(`not exist file path => ${filePath}`);
+    return false;
+  }
+
+  try {
+    fs.writeFileSync(filePath, data);
+  } catch (e) {
+    console.log(`ファイルの書き込みに失敗しました => ${filePath}`);
+    return false;
+  }
+  return true;
+});
+
 /** クリップボード関連 */
 
 /**

@@ -5,5 +5,6 @@ const { ipcRenderer, contextBridge } = require('electron');
 // https://www.electronjs.org/ja/docs/latest/tutorial/context-isolation
 contextBridge.exposeInMainWorld('electronAPI', {
   loadFile: (filePath: string) => ipcRenderer.invoke('loadFile', filePath),
+  saveFile: (filePath: string, data: string) => ipcRenderer.invoke('saveFile', filePath, data),
   writeTextToClipboard: (writeText: string) => ipcRenderer.invoke('writeTextToClipboard', writeText),
 });
