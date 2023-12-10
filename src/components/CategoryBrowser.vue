@@ -7,6 +7,11 @@ type CategoryData = {
   rows: mstData.mstTermsRow[];
 };
 
+namespace CategoryType {
+  export const CATEGORY = 'category';
+  export const TAG = 'post_tag';
+}
+
 export default defineComponent({
   name: 'CategoryBrowser',
   components: {
@@ -44,6 +49,11 @@ export default defineComponent({
     const selectCategoryIdArray: Ref<string[]> = ref([]);
 
     /**
+     * 選択中のカテゴリ種別 (カテゴリorタグ)
+     */
+    const selectCategoryTabType: Ref<string> = ref(CategoryType.CATEGORY);
+
+    /**
      * メッセージ
      */
     const message = ref('');
@@ -52,20 +62,26 @@ export default defineComponent({
      * 読込ボタン押下
      */
     function OnPushLoadButton() {
-      message.value = '';
-      electronApi.loadMstTermsFile(inputCsvPath.value, (data: mstData.mstTermsRow[], errorMessage: string) => {
-        if (errorMessage) {
-          message.value = errorMessage;
-          return;
-        }
-        if (!data) {
-          message.value = 'データの読込に失敗しました。';
-          return;
-        }
-        console.log(data);
-        categoryData.rows = data;
-        OnResetSelectStateCategoryIds();
-      });
+      // 現在のデータをクリア
+      categoryData.rows.splice(0);
+      OnResetSelectStateCategoryIds();
+      // CSVファイルからデータ読込
+      electronApi.loadMstTermsFile(
+        inputCsvPath.value,
+        selectCategoryTabType.value,
+        (data: mstData.mstTermsRow[], errorMessage: string) => {
+          if (errorMessage) {
+            message.value = errorMessage;
+            return;
+          }
+          if (!data || data.length <= 0) {
+            message.value = 'データの読込に失敗しました。';
+            return;
+          }
+          console.log(data);
+          categoryData.rows = data;
+        },
+      );
     }
 
     /**
@@ -73,7 +89,7 @@ export default defineComponent({
      * @param rows
      */
     function GetParentCategories(rows: mstData.mstTermsRow[]) {
-      return rows.filter((row) => row.parent === '0' && row.taxonomy == 'category');
+      return rows.filter((row) => row.parent === '0');
     }
 
     /**
@@ -83,6 +99,23 @@ export default defineComponent({
      */
     function GetChildCategories(rows: mstData.mstTermsRow[], parentCategoryId: string) {
       return rows.filter((row) => row.parent === parentCategoryId);
+    }
+
+    /**
+     * カテゴリタブの変更
+     * @param type
+     */
+    function OnChangeCategoryTypeTab(type: string) {
+      if (selectCategoryTabType.value === type) {
+        return;
+      }
+      if (type !== CategoryType.CATEGORY && type !== CategoryType.TAG) {
+        console.log(`not exist category type => ${type}`);
+        return;
+      }
+      // カテゴリの種類を変更してデータを再読込
+      selectCategoryTabType.value = type;
+      OnPushLoadButton();
     }
 
     /**
@@ -115,6 +148,7 @@ export default defineComponent({
      * カテゴリ選択状態のリセット
      */
     function OnResetSelectStateCategoryIds() {
+      message.value = null;
       // 選択情報クリア(関数呼び出しじゃないと反映されない)
       selectCategoryIdArray.value.splice(0);
       // keyを更新してカテゴリ一覧を無理やり更新する
@@ -126,10 +160,13 @@ export default defineComponent({
       categoryData,
       updateCategoryItemKey,
       selectCategoryIdArray,
+      selectCategoryTabType,
       message,
+      CategoryType,
       OnPushLoadButton,
       GetParentCategories,
       GetChildCategories,
+      OnChangeCategoryTypeTab,
       OnChangeSelectStateCategory,
       OnCopySelectStateCategoryIds,
       OnResetSelectStateCategoryIds,
@@ -145,6 +182,18 @@ export default defineComponent({
       <button class="load-button" v-on:click="OnPushLoadButton">読込</button>
     </div>
     <div class="container-item category-list-area">
+      <div class="category-list-tab">
+        <div class="category-list-tab-btn">
+          <input type="checkbox" name="category-tab" v-bind:checked="selectCategoryTabType === CategoryType.CATEGORY" />
+          <div class="category-list-tab-btn-l" v-on:click="(e) => OnChangeCategoryTypeTab(CategoryType.CATEGORY)">
+            カテゴリ
+          </div>
+        </div>
+        <div class="category-list-tab-btn">
+          <input type="checkbox" name="category-tab" v-bind:checked="selectCategoryTabType === CategoryType.TAG" />
+          <div class="category-list-tab-btn-r" v-on:click="(e) => OnChangeCategoryTypeTab(CategoryType.TAG)">タグ</div>
+        </div>
+      </div>
       <div class="category-list-wrapper">
         <div :key="updateCategoryItemKey" v-for="parentData in GetParentCategories(categoryData.rows)">
           <CategoryItem
@@ -218,14 +267,49 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   vertical-align: middle;
+  flex-flow: column;
 }
 .category-list-wrapper {
   position: relative;
   width: 96%;
-  height: 80%;
+  height: 100%;
   display: table-cell;
   overflow-y: auto;
   margin: auto;
+  margin-bottom: 12px;
+}
+
+/** カテゴリリスト タブ:カテゴリ */
+.category-list-tab {
+  display: flex;
+  justify-content: space-between;
+  height: 48px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+.category-list-tab-btn {
+  position: relative;
+  flex: 1;
+}
+.category-list-tab-btn input {
+  display: none;
+}
+.category-list-tab-btn div {
+  background-color: #333333;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.category-list-tab-btn input:checked + div {
+  background-color: #111111;
+}
+.category-list-tab-btn-l {
+  border-radius: 20px 0px 0px 0px;
+}
+.category-list-tab-btn-r {
+  border-radius: 0px 20px 0px 0px;
 }
 
 /** カテゴリ選択ID */

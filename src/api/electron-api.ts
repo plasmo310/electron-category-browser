@@ -66,6 +66,7 @@ export const useElectronApi = () => {
    */
   const loadMstTermsFile = (
     filePath: string,
+    categoryType: string,
     callback: (result: mstData.mstTermsRow[], errorMessage: string) => void,
   ) => {
     loadFile(filePath, (readContent: string, errorMessage: string) => {
@@ -97,6 +98,10 @@ export const useElectronApi = () => {
           slug: columns[index++],
           parent: columns[index++],
         };
+        // 指定タイプにフィルタ
+        if (row.taxonomy !== categoryType) {
+          continue;
+        }
         result.push(row);
       }
       callback(result, null);
