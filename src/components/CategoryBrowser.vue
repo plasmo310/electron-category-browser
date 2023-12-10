@@ -12,6 +12,8 @@ namespace CategoryType {
   export const TAG = 'post_tag';
 }
 
+const CATEGORY_PARENT_ID = '0';
+
 export default defineComponent({
   name: 'CategoryBrowser',
   components: {
@@ -36,10 +38,31 @@ export default defineComponent({
     const categoryData: CategoryData = reactive({
       rows: [],
     });
-    function filteredCategoryData(parentId: string) {
-      // TODO 検索フィルタできるようにする
+    function filteredCategoryData(parentId: string = CATEGORY_PARENT_ID) {
       // カテゴリデータをフィルタして返却する
-      return categoryData.rows.filter((row) => row.taxonomy === selectCategoryTabType.value && row.parent === parentId);
+      let filterData = categoryData.rows.filter(
+        (data) => data.taxonomy === selectCategoryTabType.value && data.parent === parentId,
+      );
+      // 検索ワードでのフィルタ
+      const searchWord = searchCategoryWord.value?.toLocaleLowerCase();
+      if (searchWord) {
+        if (parentId == CATEGORY_PARENT_ID) {
+          // 親カテゴリの場合、自身か子カテゴリのいずれかがヒットした場合に表示する
+          filterData = filterData.filter((parent) => {
+            let childHitData = categoryData.rows.filter(
+              (child) =>
+                child.taxonomy === selectCategoryTabType.value &&
+                child.parent === parent.id &&
+                child.name.toLocaleLowerCase().includes(searchWord),
+            );
+            return parent.name.toLocaleLowerCase().includes(searchWord) || childHitData.length > 0;
+          });
+        } else {
+          // 子カテゴリの場合、そのままフィルタする
+          filterData = filterData.filter((data) => data.name.toLocaleLowerCase().includes(searchWord));
+        }
+      }
+      return filterData;
     }
 
     /**
@@ -57,6 +80,11 @@ export default defineComponent({
      * 選択中のカテゴリ種別 (カテゴリorタグ)
      */
     const selectCategoryTabType: Ref<string> = ref(CategoryType.CATEGORY);
+
+    /**
+     * 検索ワード
+     */
+    const searchCategoryWord: Ref<string> = ref('');
 
     /**
      * メッセージ
@@ -103,6 +131,15 @@ export default defineComponent({
     }
 
     /**
+     * 検索ワードの変更
+     */
+    function OnChangeSearchCategoryWord(e: any) {
+      // keyを更新してカテゴリ一覧を無理やり更新する
+      searchCategoryWord.value = e.target.value;
+      updateCategoryItemKey.value = updateCategoryItemKey.value ? 0 : 1;
+    }
+
+    /**
      * カテゴリの選択状態を変更する
      * @param isSelected
      */
@@ -145,10 +182,12 @@ export default defineComponent({
       updateCategoryItemKey,
       selectCategoryIdArray,
       selectCategoryTabType,
+      searchCategoryWord,
       message,
       CategoryType,
       OnPushLoadButton,
       OnChangeCategoryTypeTab,
+      OnChangeSearchCategoryWord,
       OnChangeSelectStateCategory,
       OnCopySelectStateCategoryIds,
       OnResetSelectStateCategoryInfo,
@@ -176,8 +215,16 @@ export default defineComponent({
           <div class="category-list-tab-btn-r" v-on:click="(e) => OnChangeCategoryTypeTab(CategoryType.TAG)">タグ</div>
         </div>
       </div>
+      <div class="category-list-search-area">
+        <input
+          type="text"
+          class="category-list-search-value"
+          placeholder="検索"
+          v-on:input="OnChangeSearchCategoryWord"
+        />
+      </div>
       <div class="category-list-wrapper">
-        <div :key="updateCategoryItemKey" v-for="parentData in filteredCategoryData('0')">
+        <div :key="updateCategoryItemKey" v-for="parentData in filteredCategoryData()">
           <CategoryItem
             :categoryData="parentData"
             :isParent="true"
@@ -261,13 +308,13 @@ export default defineComponent({
   margin-bottom: 12px;
 }
 
-/** カテゴリリスト タブ:カテゴリ */
+/** カテゴリリスト タブ */
 .category-list-tab {
   display: flex;
   justify-content: space-between;
   height: 48px;
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 .category-list-tab-btn {
   position: relative;
@@ -292,6 +339,25 @@ export default defineComponent({
 }
 .category-list-tab-btn-r {
   border-radius: 0px 20px 0px 0px;
+}
+
+/** カテゴリリスト フィルタ */
+.category-list-search-area {
+  position: relative;
+  height: 24px;
+  width: 96%;
+  margin: auto;
+  margin-bottom: 12px;
+  text-align: left;
+}
+.category-list-search-value {
+  height: 80%;
+  width: 320px;
+  margin-left: 20px;
+  background-color: #333333;
+  border: 1px solid;
+  border-color: #666666;
+  border-radius: 2px;
 }
 
 /** カテゴリ選択ID */

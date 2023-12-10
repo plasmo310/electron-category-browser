@@ -13,6 +13,7 @@ export default defineComponent({
   setup(props: { categoryData: mstData.mstTermsRow; isParent: boolean; isSelected: boolean }, { emit }) {
     const categoryData = props.categoryData;
     const isParent = props.isParent;
+    const isSelected = props.isSelected;
 
     /**
      * カテゴリの選択状態を変更する
@@ -28,6 +29,7 @@ export default defineComponent({
     return {
       categoryData,
       isParent,
+      isSelected,
       onChangeSelectStateCategory,
     };
   },
@@ -36,7 +38,12 @@ export default defineComponent({
 
 <template>
   <li class="category-item-root">
-    <input class="category-item-checkbox" type="checkbox" v-on:change="onChangeSelectStateCategory" />
+    <input
+      class="category-item-checkbox"
+      type="checkbox"
+      v-on:change="onChangeSelectStateCategory"
+      :checked="isSelected"
+    />
     <span class="category-item" :class="isParent ? 'category-item-parent' : 'category-item-child'">
       {{ categoryData.name }}
     </span>
