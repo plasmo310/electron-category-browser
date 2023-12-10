@@ -178,6 +178,7 @@ export default defineComponent({
 
     return {
       inputCsvPath,
+      categoryData,
       filteredCategoryData,
       updateCategoryItemKey,
       selectCategoryIdArray,
@@ -221,6 +222,7 @@ export default defineComponent({
           class="category-list-search-value"
           placeholder="検索"
           v-on:input="OnChangeSearchCategoryWord"
+          v-show="categoryData.rows.length > 0"
         />
       </div>
       <div class="category-list-wrapper">
