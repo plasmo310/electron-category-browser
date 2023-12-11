@@ -44,6 +44,7 @@
 ### カテゴリの一覧表示
 1. アプリを起動し、読み込むCSVファイルのパスを指定します。<br><img width="600" alt="screenshot 2023-12-11 23 41 12" src="https://github.com/masarito617/electron-category-browser/assets/77447256/2d3f30b6-8c12-49e4-a55d-6815f848d172">
 2. 「読込」ボタンを押下するとカテゴリ、タグ情報が表示されます。<br><img width="600" alt="screenshot 2023-12-11 23 41 56" src="https://github.com/masarito617/electron-category-browser/assets/77447256/dcc0f89d-5bad-44b4-95e4-bb662f79ff79">
+3. 検索エリアに入力することで表示カテゴリをフィルタすることができます。<br><img width="600" alt="screenshot 2023-12-11 23 58 23" src="https://github.com/masarito617/electron-category-browser/assets/77447256/14a54d9e-bc9d-4fa8-8051-002710e6dff7">
 
 ### カテゴリの選択とIDコピー
 1. 選択したカテゴリが下部に表示され、「IDコピー」ボタンを押下するとカンマ区切りのID文字列をコピーできます。<br><img width="600" alt="screenshot 2023-12-11 23 43 17" src="https://github.com/masarito617/electron-category-browser/assets/77447256/83f2a5ad-65a8-4bca-9f0c-6f51681479fe">
@@ -52,6 +53,7 @@
 1. カテゴリ名、slugを入力して「追加」ボタンを押下するとカテゴリを追加できます。<br><img width="600" alt="screenshot 2023-12-11 23 46 42" src="https://github.com/masarito617/electron-category-browser/assets/77447256/9e05e3be-4b57-497a-b0a7-c040a2f006d3">
 2. カテゴリ横の「×」ボタンを押下するとカテゴリを削除できます。<br><img width="600" alt="screenshot 2023-12-11 23 47 51" src="https://github.com/masarito617/electron-category-browser/assets/77447256/5c71f754-9fca-4d8a-a01b-99ec7549551e">
 3. 「保存」ボタンを押下すると編集した内容をCSVファイルに保存できます。<br><img width="600" alt="screenshot 2023-12-11 23 48 38" src="https://github.com/masarito617/electron-category-browser/assets/77447256/497e9724-6fbb-4950-9d3d-5dd3b783c6b8">
+
 
 
 
