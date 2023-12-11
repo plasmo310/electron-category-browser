@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Ref, computed, defineComponent, reactive, ref } from 'vue';
+import { Ref, defineComponent, onMounted, reactive, ref } from 'vue';
 import { mstData, useElectronApi } from '../api/electron-api';
 import CategoryItem from './CategoryItem.vue';
 
@@ -24,10 +24,37 @@ export default defineComponent({
   setup() {
     const electronApi = useElectronApi();
 
+    onMounted(() => {
+      loadAllStoreData();
+    });
+
+    /**
+     * 保存データキー
+     */
+    const StoreDataKey = {
+      InputCsvPath: 'InputCsvPath',
+    };
+
+    /**
+     * 保存データロード処理
+     */
+    const loadAllStoreData = () => {
+      // 保存されているデータがあれば設定する
+      electronApi.loadStoreData(StoreDataKey.InputCsvPath, (storeData) => {
+        if (storeData != undefined) {
+          inputCsvPath.value = storeData;
+        }
+      });
+    };
+
     /**
      * 入力CSVパス
      */
     const inputCsvPath: Ref<string> = ref('/data/dummy_data.csv');
+    const onChangeInputCsvPath = (e: any) => {
+      let inputValue = e.target.value;
+      electronApi.saveStoreData(StoreDataKey.InputCsvPath, inputValue);
+    };
 
     /**
      * カテゴリデータ
@@ -309,6 +336,7 @@ export default defineComponent({
       addCategoryParent,
       message,
       CategoryType,
+      onChangeInputCsvPath,
       OnPushLoadButton,
       OnPushSaveButton,
       OnChangeCategoryTypeTab,
@@ -326,7 +354,7 @@ export default defineComponent({
 <template>
   <div class="container">
     <div class="container-item load-path-area">
-      <input class="load-input-path" v-model="inputCsvPath" />
+      <input class="load-input-path" v-model="inputCsvPath" v-on:input="onChangeInputCsvPath" />
       <button class="load-input-button" v-on:click="OnPushLoadButton">読込</button>
       <button class="load-input-button" v-on:click="OnPushSaveButton">保存</button>
     </div>

@@ -7,4 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   loadFile: (filePath: string) => ipcRenderer.invoke('loadFile', filePath),
   saveFile: (filePath: string, data: string) => ipcRenderer.invoke('saveFile', filePath, data),
   writeTextToClipboard: (writeText: string) => ipcRenderer.invoke('writeTextToClipboard', writeText),
+  saveStoreData: (key: string, value: any) => ipcRenderer.invoke('saveStoreData', key, value),
+  loadStoreData: (key: string) => ipcRenderer.invoke('loadStoreData', key),
+  clearStoreData: () => ipcRenderer.invoke('clearStoreData'),
 });

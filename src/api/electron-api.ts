@@ -6,6 +6,9 @@ export interface IElectronAPI {
   loadFile: (filePath: string) => Promise<string>;
   saveFile: (filePath: string, data: string) => Promise<boolean>;
   writeTextToClipboard: (writeText: string) => Promise<void>;
+  saveStoreData: (key: string, value: any) => Promise<void>;
+  loadStoreData: (key: string) => Promise<any>;
+  clearStoreData: () => Promise<void>;
 }
 declare global {
   interface Window {
@@ -165,11 +168,30 @@ export const useElectronApi = () => {
     callback('クリップボードにコピーしました。');
   };
 
+  const saveStoreData = (key: string, value: any) => {
+    window.electronAPI?.saveStoreData(key, value);
+  };
+
+  const loadStoreData = (key: string, callback: (result: any) => void): any => {
+    if (!window.electronAPI) {
+      callback(null);
+      return;
+    }
+    window.electronAPI.loadStoreData(key).then(callback);
+  };
+
+  const clearStoreData = () => {
+    window.electronAPI?.clearStoreData();
+  };
+
   return {
     loadFile,
     loadMstTermsFile,
     saveFile,
     saveMstTermsFile,
     writeTextToClipboard,
+    saveStoreData,
+    loadStoreData,
+    clearStoreData,
   };
 };
