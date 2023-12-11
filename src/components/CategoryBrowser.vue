@@ -7,11 +7,13 @@ type CategoryData = {
   rows: mstData.mstTermsRow[];
 };
 
+// カテゴリ種別
 namespace CategoryType {
   export const CATEGORY = 'category';
   export const TAG = 'post_tag';
 }
 
+// 親カテゴリのparentId
 const CATEGORY_PARENT_ID = '0';
 
 export default defineComponent({
@@ -25,9 +27,7 @@ export default defineComponent({
     /**
      * 入力CSVパス
      */
-    const inputCsvPath: Ref<string> = ref(
-      '/Users/plasma/workspace/GitProjects/wp-next-elekibear/data/db/mst_terms.csv',
-    );
+    const inputCsvPath: Ref<string> = ref('/data/dummy_data.csv');
 
     /**
      * カテゴリデータ
@@ -276,6 +276,12 @@ export default defineComponent({
 
       // 削除して表示を更新
       categoryData.rows = categoryData.rows.filter((data) => !removeCategoryIds.includes(data.id));
+      for (const removeCategoryId of removeCategoryIds) {
+        const index = selectCategoryIdArray.value.indexOf(removeCategoryId);
+        if (index >= 0) {
+          selectCategoryIdArray.value.splice(index, 1);
+        }
+      }
       console.log('remove => ' + removeCategoryIds);
 
       RefreshForceCategoryItem();

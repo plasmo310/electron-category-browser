@@ -29,20 +29,20 @@ export namespace mstData {
 
 // Webブラウザ上での確認用データ
 const DUMMY_CATEGORY_DATA = `id,taxonomy,name,slug,parent
-3,category,音楽,music,0
-5,category,その他,other,0
-6,category,都会のエレキベア,elekibear,0
-37,category,ラーメン日記,ramen,0
-39,category,四コマ漫画,comic,0
-40,category,好きな曲カタルコーナー,favorite,3
-53,category,IT関連,it,0
-64,category,WordPress関連,wordpress,53
-65,category,Python,python,53
-66,category,JavaScript,java-script,53
-99,post_tag,Anima2D,anima2d,0
-100,post_tag,NCMB,ncmb,0
-101,post_tag,Simple Physics Toolkit,simple-physics-toolkit,0
-102,post_tag,Unity 2D Animation,unity-2d-animation,0
+1,category,DUMMY1,dummy1,0
+2,category,DUMMY2,dummy2,0
+3,category,DUMMY3,dummy3,0
+4,category,DUMMY4,dummy4,0
+5,category,DUMMY5,dummy5,0
+11,category,DUMMY11,dummy11,1
+12,category,DUMMY12,dummy12,1
+13,category,DUMMY13,dummy13,1
+31,category,DUMMY31,dummy31,3
+101,post_tag,DUMMY_TAG1,dummytag1,0
+102,post_tag,DUMMY_TAG2,dummytag2,0
+103,post_tag,DUMMY_TAG3,dummytag3,0
+104,post_tag,DUMMY_TAG4,dummytag4,0
+105,post_tag,DUMMY_TAG5,dummytag5,0
 `;
 
 /**
