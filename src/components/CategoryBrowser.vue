@@ -261,8 +261,6 @@ export default defineComponent({
      * @param id
      */
     function OnRemoveCategoryItem(id: string) {
-      // TODO
-      console.log('remove' + id);
       const removeCategory = categoryData.rows.find((data) => data.id === id);
       if (!removeCategory) {
         message.value = `削除するカテゴリが見つかりません id: ${id}`;
@@ -270,14 +268,16 @@ export default defineComponent({
       }
 
       // 親要素の場合、子カテゴリも削除対象に含める
-      const removeCategoryIds = [removeCategory.id];
+      let removeCategoryIds = [removeCategory.id];
       if (removeCategory.parent == CATEGORY_PARENT_ID) {
         const childData = categoryData.rows.filter((data) => data.parent == removeCategory.id);
-        removeCategoryIds.concat(childData.map((data) => data.id));
+        removeCategoryIds = removeCategoryIds.concat(childData.map((data) => data.id));
       }
 
       // 削除して表示を更新
       categoryData.rows = categoryData.rows.filter((data) => !removeCategoryIds.includes(data.id));
+      console.log('remove => ' + removeCategoryIds);
+
       RefreshForceCategoryItem();
     }
 
@@ -378,6 +378,7 @@ export default defineComponent({
               :isParent="false"
               :isSelected="selectCategoryIdArray.includes(childData.id)"
               @onChangeSelectId="OnChangeSelectStateCategory"
+              @onRemoveCategoryItem="OnRemoveCategoryItem"
             />
           </div>
         </div>
