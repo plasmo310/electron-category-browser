@@ -1,6 +1,9 @@
 import { app, BrowserWindow, clipboard, ipcMain, screen } from 'electron';
 import * as path from 'path';
 
+// run this as early in the main process as possible
+if (require('electron-squirrel-startup')) app.quit();
+
 // 保存データ
 const Store = require('electron-store');
 const store = new Store();
