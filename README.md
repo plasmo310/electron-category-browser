@@ -17,21 +17,21 @@
 ## 動作環境
 * 読み込めるCSVデータ形式
   ```
-  id,taxonomy,name,slug,parent
-  1,category,DUMMY1,dummy1,0
-  2,category,DUMMY2,dummy2,0
-  3,category,DUMMY3,dummy3,0
-  4,category,DUMMY4,dummy4,0
-  5,category,DUMMY5,dummy5,0
-  11,category,DUMMY11,dummy11,1
-  12,category,DUMMY12,dummy12,1
-  13,category,DUMMY13,dummy13,1
-  31,category,DUMMY31,dummy31,3
-  101,post_tag,DUMMY_TAG1,dummytag1,0
-  102,post_tag,DUMMY_TAG2,dummytag2,0
-  103,post_tag,DUMMY_TAG3,dummytag3,0
-  104,post_tag,DUMMY_TAG4,dummytag4,0
-  105,post_tag,DUMMY_TAG5,dummytag5,0
+  id,taxonomy,name,name_en,slug,parent
+  1,category,DUMMY1,DUMMY_EN1,dummy1,0
+  2,category,DUMMY2,DUMMY_EN2,dummy2,0
+  3,category,DUMMY3,DUMMY_EN3,dummy3,0
+  4,category,DUMMY4,DUMMY_EN4,dummy4,0
+  5,category,DUMMY5,DUMMY_EN5,dummy5,0
+  11,category,DUMMY11,DUMMY_EN11,dummy11,1
+  12,category,DUMMY12,DUMMY_EN12,dummy12,1
+  13,category,DUMMY13,DUMMY_EN13,dummy13,1
+  31,category,DUMMY31,DUMMY_EN31,dummy31,3
+  101,post_tag,DUMMY_TAG1,DUMMY_TAG_EN1,dummytag1,0
+  102,post_tag,DUMMY_TAG2,DUMMY_TAG_EN2,dummytag2,0
+  103,post_tag,DUMMY_TAG3,DUMMY_TAG_EN3,dummytag3,0
+  104,post_tag,DUMMY_TAG4,DUMMY_TAG_EN4,dummytag4,0
+  105,post_tag,DUMMY_TAG5,DUMMY_TAG_EN5,dummytag5,0
   ```
   * 読込処理の箇所<br><a href="./src/api/electron-api.ts#L34C15-L34C15">src/api/electron-api.ts</a><br>
   
@@ -50,7 +50,7 @@
 1. 選択したカテゴリが下部に表示され、「IDコピー」ボタンを押下するとカンマ区切りのID文字列をコピーできます。<br><img width="600" alt="screenshot 2023-12-11 23 43 17" src="https://github.com/masarito617/electron-category-browser/assets/77447256/83f2a5ad-65a8-4bca-9f0c-6f51681479fe">
 
 ### カテゴリの追加・編集
-1. カテゴリ名、slugを入力して「追加」ボタンを押下するとカテゴリを追加できます。<br><img width="600" alt="screenshot 2023-12-11 23 46 42" src="https://github.com/masarito617/electron-category-browser/assets/77447256/9e05e3be-4b57-497a-b0a7-c040a2f006d3">
+1. カテゴリ名、カテゴリ名(英語)、slugを入力して「追加」ボタンを押下するとカテゴリを追加できます。<br><img width="600" alt="screenshot 2023-12-11 23 46 42" src="https://github.com/masarito617/electron-category-browser/assets/77447256/9e05e3be-4b57-497a-b0a7-c040a2f006d3">
 2. カテゴリ横の「×」ボタンを押下するとカテゴリを削除できます。<br><img width="600" alt="screenshot 2023-12-11 23 47 51" src="https://github.com/masarito617/electron-category-browser/assets/77447256/5c71f754-9fca-4d8a-a01b-99ec7549551e">
 3. 「保存」ボタンを押下すると編集した内容をCSVファイルに保存できます。<br><img width="600" alt="screenshot 2023-12-11 23 48 38" src="https://github.com/masarito617/electron-category-browser/assets/77447256/497e9724-6fbb-4950-9d3d-5dd3b783c6b8">
 

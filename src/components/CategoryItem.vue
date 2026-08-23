@@ -52,6 +52,7 @@ export default defineComponent({
     />
     <span class="category-item" :class="isParent ? 'category-item-parent' : 'category-item-child'">
       {{ categoryData.name }}
+      <span class="category-item-name-en" v-show="categoryData.name_en">{{ `(${categoryData.name_en})` }}</span>
     </span>
     <button class="category-delete-btn" v-on:click="onRemoveCategoryItem">×</button>
   </li>
@@ -73,6 +74,11 @@ export default defineComponent({
 .category-item {
   text-align: left;
   flex: 1;
+}
+.category-item-name-en {
+  margin-left: 8px;
+  font-size: 12px;
+  color: #999999;
 }
 .category-item-parent {
   margin-left: 12px;

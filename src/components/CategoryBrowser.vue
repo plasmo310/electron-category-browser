@@ -80,16 +80,22 @@ export default defineComponent({
               (child) =>
                 child.taxonomy === selectCategoryTabType.value &&
                 child.parent === parent.id &&
-                child.name.toLocaleLowerCase().includes(searchWord),
+                isHitSearchWord(child, searchWord),
             );
-            return parent.name.toLocaleLowerCase().includes(searchWord) || childHitData.length > 0;
+            return isHitSearchWord(parent, searchWord) || childHitData.length > 0;
           });
         } else {
           // 子カテゴリの場合、そのままフィルタする
-          filterData = filterData.filter((data) => data.name.toLocaleLowerCase().includes(searchWord));
+          filterData = filterData.filter((data) => isHitSearchWord(data, searchWord));
         }
       }
       return filterData;
+    }
+    function isHitSearchWord(data: mstData.mstTermsRow, searchWord: string) {
+      // 名前(日本語・英語)のいずれかにヒットした場合に表示する
+      return (
+        data.name?.toLocaleLowerCase().includes(searchWord) || data.name_en?.toLocaleLowerCase().includes(searchWord)
+      );
     }
     function getCategoryDataFromId(id: string) {
       return categoryData.rows.find((data) => data.id === id);
@@ -120,6 +126,7 @@ export default defineComponent({
      * 追加カテゴリ 入力情報
      */
     const addCategoryName: Ref<string> = ref('');
+    const addCategoryNameEn: Ref<string> = ref('');
     const addCetegorySlug: Ref<string> = ref('');
     const addCategoryParent: Ref<string> = ref(CATEGORY_PARENT_ID);
 
@@ -241,9 +248,10 @@ export default defineComponent({
         return;
       }
       const categoryName: string = addCategoryName.value;
+      const categoryNameEn: string = addCategoryNameEn.value;
       const categorySlug: string = addCetegorySlug.value;
       const categoryParent: string = addCategoryParent.value;
-      if (!categoryName || !addCetegorySlug || categoryParent == null || categoryParent.length <= 0) {
+      if (!categoryName || !categoryNameEn || !categorySlug || categoryParent == null || categoryParent.length <= 0) {
         message.value = '必要な情報が入力されていません。';
         return;
       }
@@ -253,7 +261,7 @@ export default defineComponent({
       for (const data of categoryData.rows) {
         maxId = Math.max(maxId, Number(data.id));
 
-        if (data.name === categoryName || data.slug === categorySlug) {
+        if (data.name === categoryName || data.name_en === categoryNameEn || data.slug === categorySlug) {
           message.value = '入力されたカテゴリは既に存在しています。';
           return;
         }
@@ -264,12 +272,13 @@ export default defineComponent({
       categoryData.rows.push({
         id: String(newId),
         name: categoryName,
+        name_en: categoryNameEn,
         taxonomy: selectCategoryTabType.value,
         slug: categorySlug,
         parent: categoryParent,
       });
       message.value = `カテゴリを追加しました。{ id: ${newId} }`;
-      console.log(`add => ${newId} ${categoryName} ${categorySlug} ${categoryParent}`);
+      console.log(`add => ${newId} ${categoryName} ${categoryNameEn} ${categorySlug} ${categoryParent}`);
 
       RefreshForceCategoryItem();
     }
@@ -279,6 +288,7 @@ export default defineComponent({
      */
     function OnResetAddCategoryInfo() {
       addCategoryName.value = null;
+      addCategoryNameEn.value = null;
       addCetegorySlug.value = null;
       addCategoryParent.value = CATEGORY_PARENT_ID;
     }
@@ -332,6 +342,7 @@ export default defineComponent({
       selectCategoryTabType,
       searchCategoryWord,
       addCategoryName,
+      addCategoryNameEn,
       addCetegorySlug,
       addCategoryParent,
       message,
@@ -360,6 +371,7 @@ export default defineComponent({
     </div>
     <div class="container-item add-category-area">
       <input class="add-category-value-name" type="text" placeholder="名前" v-model="addCategoryName" />
+      <input class="add-category-value-name-en" type="text" placeholder="名前(英語)" v-model="addCategoryNameEn" />
       <input class="add-category-value-slug" type="text" placeholder="スラッグ" v-model="addCetegorySlug" />
       <select
         class="add-category-value-parent"
@@ -451,9 +463,11 @@ export default defineComponent({
 }
 .load-input-path {
   flex: 1;
+  min-width: 0;
   height: 100%;
 }
 .load-input-button {
+  flex: none;
   width: 60px;
   height: 120%;
   font-size: 12px;
@@ -467,6 +481,7 @@ export default defineComponent({
 /** カテゴリリスト */
 .category-list-area {
   position: relative;
+  box-sizing: border-box;
   width: 100%;
   height: 400px;
   background-color: #222222;
@@ -583,21 +598,32 @@ export default defineComponent({
   width: 100%;
   height: 32px;
 }
+/** 入力欄はmin-width:autoだと縮まないため、明示的に0を指定して読込パスエリアと横幅を揃える */
 .add-category-value-name {
   flex: 1;
+  min-width: 0;
   height: 100%;
+}
+.add-category-value-name-en {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin-left: 8px;
 }
 .add-category-value-slug {
   flex: 1;
+  min-width: 0;
   height: 100%;
   margin-left: 8px;
 }
 .add-category-value-parent {
+  flex: none;
   width: 160px;
   height: 112%;
   margin-left: 8px;
 }
 .add-category-btn {
+  flex: none;
   width: 60px;
   height: 120%;
   font-size: 12px;

@@ -13,7 +13,7 @@ module.exports = {
       config: {
         author: 'plasmo',
         description: 'Category Browse Electron App',
-        version: '1.0.0',
+        version: '1.1.0',
         setupExe: 'electron-category-browser-setup.exe',
       },
     },

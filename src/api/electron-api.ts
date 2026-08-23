@@ -25,27 +25,31 @@ export namespace mstData {
     id: string;
     taxonomy: string; // category or post_tag
     name: string;
+    name_en: string;
     slug: string;
     parent: string;
   };
 }
 
+// CSVのヘッダ行
+const MST_TERMS_CSV_HEADER = 'id,taxonomy,name,name_en,slug,parent';
+
 // Webブラウザ上での確認用データ
-const DUMMY_CATEGORY_DATA = `id,taxonomy,name,slug,parent
-1,category,DUMMY1,dummy1,0
-2,category,DUMMY2,dummy2,0
-3,category,DUMMY3,dummy3,0
-4,category,DUMMY4,dummy4,0
-5,category,DUMMY5,dummy5,0
-11,category,DUMMY11,dummy11,1
-12,category,DUMMY12,dummy12,1
-13,category,DUMMY13,dummy13,1
-31,category,DUMMY31,dummy31,3
-101,post_tag,DUMMY_TAG1,dummytag1,0
-102,post_tag,DUMMY_TAG2,dummytag2,0
-103,post_tag,DUMMY_TAG3,dummytag3,0
-104,post_tag,DUMMY_TAG4,dummytag4,0
-105,post_tag,DUMMY_TAG5,dummytag5,0
+const DUMMY_CATEGORY_DATA = `${MST_TERMS_CSV_HEADER}
+1,category,DUMMY1,DUMMY_EN1,dummy1,0
+2,category,DUMMY2,DUMMY_EN2,dummy2,0
+3,category,DUMMY3,DUMMY_EN3,dummy3,0
+4,category,DUMMY4,DUMMY_EN4,dummy4,0
+5,category,DUMMY5,DUMMY_EN5,dummy5,0
+11,category,DUMMY11,DUMMY_EN11,dummy11,1
+12,category,DUMMY12,DUMMY_EN12,dummy12,1
+13,category,DUMMY13,DUMMY_EN13,dummy13,1
+31,category,DUMMY31,DUMMY_EN31,dummy31,3
+101,post_tag,DUMMY_TAG1,DUMMY_TAG_EN1,dummytag1,0
+102,post_tag,DUMMY_TAG2,DUMMY_TAG_EN2,dummytag2,0
+103,post_tag,DUMMY_TAG3,DUMMY_TAG_EN3,dummytag3,0
+104,post_tag,DUMMY_TAG4,DUMMY_TAG_EN4,dummytag4,0
+105,post_tag,DUMMY_TAG5,DUMMY_TAG_EN5,dummytag5,0
 `;
 
 /**
@@ -126,6 +130,7 @@ export const useElectronApi = () => {
           id: columns[index++],
           taxonomy: columns[index++],
           name: columns[index++],
+          name_en: columns[index++],
           slug: columns[index++],
           parent: columns[index++],
         };
@@ -146,9 +151,9 @@ export const useElectronApi = () => {
     rows: mstData.mstTermsRow[],
     callback: (errorMessage: string) => void,
   ) => {
-    let data = 'id,taxonomy,name,slug,parent\r\n';
+    let data = `${MST_TERMS_CSV_HEADER}\r\n`;
     for (const row of rows) {
-      const values = [row.id, row.taxonomy, row.name, row.slug, row.parent];
+      const values = [row.id, row.taxonomy, row.name, row.name_en, row.slug, row.parent];
       data += values.join(',') + '\r\n';
     }
     saveFile(filePath, data, callback);
